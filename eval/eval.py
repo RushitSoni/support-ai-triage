@@ -83,6 +83,10 @@ def classify(subject: str, body_raw: str) -> dict:
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {GROQ_API_KEY}",
+            # Groq's API sits behind Cloudflare, which blocks the default
+            # Python-urllib User-Agent with a 403 (Cloudflare error 1010).
+            # Setting a normal-looking User-Agent avoids that block.
+            "User-Agent": "Mozilla/5.0 (compatible; support-ai-triage-eval/1.0)",
         },
         method="POST",
     )
