@@ -1,28 +1,71 @@
-- name: Check Groq API access
-  env:
-    GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-  run: |
-    python3 - <<'PY'
-    import os
-    import urllib.request
-    import urllib.error
+name: Classification Eval
 
-    key = os.environ.get("GROQ_API_KEY")
+# Runs the offline eval suite whenever prompt or eval-related files change.
+# This is the CI/CD piece from the roadmap's Week 6 hardening phase — it
+# catches classification regressions before they reach the live n8n workflow.
 
-    print("API key present:", bool(key))
+on:
+  push:
+    paths:
+      - 'eval/**'
+      - 'kb_pipeline/**'
+  pull_request:
+    paths:
+      - 'eval/**'
+      - 'kb_pipeline/**'
+  workflow_dispatch: {}  # allows manual triggering from the Actions tab
 
-    req = urllib.request.Request(
-        "https://api.groq.com/openai/v1/models",
-        headers={"Authorization": f"Bearer {key}"}
-    )
+jobs:
+  run-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
 
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            print("SUCCESS:", r.status)
-            print(r.read().decode())
-    except urllib.error.HTTPError as e:
-        print("HTTP ERROR:", e.code)
-        print("RESPONSE BODY:")
-        print(e.read().decode())
-        raise
-    PY
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check Groq API access
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import urllib.request
+          import urllib.error
+
+          key = os.environ.get("GROQ_API_KEY")
+
+          print("API key present:", bool(key))
+
+          req = urllib.request.Request(
+              "https://api.groq.com/openai/v1/models",
+              headers={"Authorization": f"Bearer {key}"}
+          )
+
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  print("SUCCESS:", r.status)
+                  print(r.read().decode())
+          except urllib.error.HTTPError as e:
+              print("HTTP ERROR:", e.code)
+              print("RESPONSE BODY:")
+              print(e.read().decode())
+              raise
+          PY
+
+      - name: Run classification eval
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          cd eval
+          python3 eval.py
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: eval/eval_results.json
