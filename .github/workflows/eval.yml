@@ -1,9 +1,5 @@
 name: Classification Eval
 
-# Runs the offline eval suite whenever prompt or eval-related files change.
-# This is the CI/CD piece from the roadmap's Week 6 hardening phase — it
-# catches classification regressions before they reach the live n8n workflow.
-
 on:
   push:
     paths:
@@ -13,11 +9,12 @@ on:
     paths:
       - 'eval/**'
       - 'kb_pipeline/**'
-  workflow_dispatch: {}  # allows manual triggering from the Actions tab
+  workflow_dispatch: {}
 
 jobs:
   run-eval:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -27,7 +24,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Check Groq API access
+      # ADD THIS STEP HERE
+      - name: Test Groq API from GitHub Actions
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
@@ -36,26 +34,30 @@ jobs:
           import urllib.request
           import urllib.error
 
-          key = os.environ.get("GROQ_API_KEY")
-
-          print("API key present:", bool(key))
+          url = "https://api.groq.com/openai/v1/models"
 
           req = urllib.request.Request(
-              "https://api.groq.com/openai/v1/models",
-              headers={"Authorization": f"Bearer {key}"}
+              url,
+              headers={
+                  "Authorization": f"Bearer {os.environ['GROQ_API_KEY']}",
+                  "User-Agent": "github-actions-groq-test"
+              }
           )
 
           try:
               with urllib.request.urlopen(req, timeout=30) as r:
-                  print("SUCCESS:", r.status)
+                  print("STATUS:", r.status)
                   print(r.read().decode())
           except urllib.error.HTTPError as e:
-              print("HTTP ERROR:", e.code)
-              print("RESPONSE BODY:")
+              print("STATUS:", e.code)
+              print("HEADERS:")
+              print(e.headers)
+              print("BODY:")
               print(e.read().decode())
               raise
           PY
 
+      # YOUR EXISTING EVAL STEP
       - name: Run classification eval
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
