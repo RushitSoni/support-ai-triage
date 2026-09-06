@@ -1,0 +1,14 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+eval/eval_results.json
+
+# n8n
+.n8n/
+
+# OS
+.DS_Store
+Thumbs.db

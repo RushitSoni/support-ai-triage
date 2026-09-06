@@ -1,0 +1,182 @@
+{
+  "name": "wf_feedback_ingest",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "feedback",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8c07848b-a9c2-4f03-bb11-0bb6b1f6687e",
+      "name": "Webhook",
+      "webhookId": "11b6d83f-0d22-44b1-9d48-5424f9c82c3b"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "outcomes",
+          "mode": "list",
+          "cachedResultName": "outcomes"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "was_correct": "={{ $json.body.was_correct }}",
+            "reopened": "={{ $json.body.reopened }}",
+            "decision_id": "={{ $json.body.decision_id }}",
+            "human_category": "={{ $json.body.human_category }}",
+            "human_edited_reply": "={{ $json.body.human_edited_reply }}",
+            "csat_score": "={{ $json.body.csat_score }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "decision_id",
+              "displayName": "decision_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "was_correct",
+              "displayName": "was_correct",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_category",
+              "displayName": "human_category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_edited_reply",
+              "displayName": "human_edited_reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "csat_score",
+              "displayName": "csat_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reopened",
+              "displayName": "reopened",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resolved_at",
+              "displayName": "resolved_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "logged_at",
+              "displayName": "logged_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "bfb8356f-1af0-430b-9701-e70e495d44aa",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "pXMdGhAEBYV4r00o",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "uBMQEGlRuH38VQKh",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "b0048779-acc9-4c9c-bfba-d00ddd02fe34",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cf741a131aa0ec5b3dc272f7426ba1b4f403496bebcf59c44c0a2188bbddecff"
+  },
+  "nodeGroups": [],
+  "id": "KLlc9iXsxGF8EFKv",
+  "tags": []
+}

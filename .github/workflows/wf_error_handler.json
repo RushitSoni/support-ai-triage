@@ -1,0 +1,92 @@
+{
+  "name": "wf_error_handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "24b48cf2-2319-4cde-bd80-329227520035",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const error = $json;\n\nconst summary = `Workflow: ${error.workflow?.name || 'unknown'}\nFailed node: ${error.execution?.lastNodeExecuted || 'unknown'}\nError message: ${error.execution?.error?.message || 'unknown'}\nExecution URL: ${error.execution?.url || 'n/a'}`;\n\nreturn [\n  {\n    json: {\n      summary\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "6113c6eb-f2b5-4536-8818-f5647dbcf977",
+      "name": "Format Error"
+    },
+    {
+      "parameters": {
+        "fromEmail": "rushitpsoni2002@gmail.com",
+        "toEmail": "rushitpsoni2002@gmail.com",
+        "subject": "[N8N ERROR] Workflow failure detected",
+        "emailFormat": "text",
+        "text": "={{ $json.summary }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "00eead98-281f-477f-9a73-370314f954bf",
+      "name": "Send an Email",
+      "webhookId": "12d1a84f-9026-4617-bd1f-4adeb30255e3",
+      "credentials": {
+        "smtp": {
+          "id": "9DjGp89G3lOYbIjp",
+          "name": "Gmail SMTP"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Format Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5b097256-648b-48fb-bcd7-ba3c9b5ae110",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cf741a131aa0ec5b3dc272f7426ba1b4f403496bebcf59c44c0a2188bbddecff"
+  },
+  "nodeGroups": [],
+  "id": "uBMQEGlRuH38VQKh",
+  "tags": []
+}

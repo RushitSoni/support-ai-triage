@@ -1,0 +1,60 @@
+version: "3.8"
+
+# This compose file only runs the SUPPORTING services (Postgres, Redis, Qdrant).
+# Since n8n is already running via the one-line setup (npx n8n / n8n start),
+# it is NOT included here. All three services below expose their ports to
+# localhost, so your locally-running n8n can reach them at:
+#   Postgres -> localhost:5432
+#   Redis    -> localhost:6379
+#   Qdrant   -> localhost:6333
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: support_ai_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=support_ai
+      - POSTGRES_USER=support_ai_user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme_local_only}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U support_ai_user -d support_ai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: support_ai_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: support_ai_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  embedding-service:
+    build: ./embedding_service
+    container_name: support_ai_embeddings
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
+volumes:
+  pg_data:
+  redis_data:
+  qdrant_data:

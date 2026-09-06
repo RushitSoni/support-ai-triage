@@ -1,0 +1,42 @@
+name: Classification Eval
+
+# Runs the offline eval suite whenever prompt or eval-related files change.
+# This is the CI/CD piece from the roadmap's Week 6 hardening phase — it
+# catches classification regressions before they reach the live n8n workflow.
+
+on:
+  push:
+    paths:
+      - 'eval/**'
+      - 'kb_pipeline/**'
+  pull_request:
+    paths:
+      - 'eval/**'
+      - 'kb_pipeline/**'
+  workflow_dispatch: {}  # allows manual triggering from the Actions tab
+
+jobs:
+  run-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run classification eval
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          cd eval
+          python3 eval.py
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: eval/eval_results.json
