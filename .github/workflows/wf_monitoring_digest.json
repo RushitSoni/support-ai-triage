@@ -3,6 +3,19 @@
   "nodes": [
     {
       "parameters": {
+        "jsCode": "const rows = $input.all().map(item => item.json);\n\nif (rows.length === 0) {\n  return [\n    {\n      json: {\n        digest_text: 'No ticket activity in the tracked period yet.'\n      }\n    }\n  ];\n}\n\nconst lines = rows.map(\n  r =>\n    `${r.day.split('T')[0]} | Total: ${r.total_tickets} | Auto-resolved: ${r.auto_resolved} | Escalated: ${r.escalated} | Avg confidence: ${r.avg_confidence} | Misclassified: ${r.misclassifications}`\n);\n\nconst digestText = `Support AI Triage — Daily Digest\\n\\n${lines.join('\\n')}`;\n\nreturn [\n  {\n    json: {\n      digest_text: digestText\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "5f75f937-5d30-4ef9-9602-a511cd70a71c",
+      "name": "Format Digest"
+    },
+    {
+      "parameters": {
         "rule": {
           "interval": [
             {
@@ -18,7 +31,7 @@
         0
       ],
       "id": "e7bbd75e-f1b8-48c9-a289-9a524c61a3ff",
-      "name": "Schedule Trigger"
+      "name": "Daily Digest Schedule"
     },
     {
       "parameters": {
@@ -33,7 +46,7 @@
         0
       ],
       "id": "01410a5a-94fe-414d-808d-b240dc2f98d4",
-      "name": "Execute a SQL query",
+      "name": "Refresh Daily Metrics View",
       "credentials": {
         "postgres": {
           "id": "pXMdGhAEBYV4r00o",
@@ -54,26 +67,13 @@
         0
       ],
       "id": "bfea512d-042d-4dbf-84b0-456a32094e12",
-      "name": "Execute a SQL query1",
+      "name": "Fetch Last 7 Days Metrics",
       "credentials": {
         "postgres": {
           "id": "pXMdGhAEBYV4r00o",
           "name": "Postgres account"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "const rows = $input.all().map(item => item.json);\n\nif (rows.length === 0) {\n  return [\n    {\n      json: {\n        digest_text: 'No ticket activity in the tracked period yet.'\n      }\n    }\n  ];\n}\n\nconst lines = rows.map(\n  r =>\n    `${r.day.split('T')[0]} | Total: ${r.total_tickets} | Auto-resolved: ${r.auto_resolved} | Escalated: ${r.escalated} | Avg confidence: ${r.avg_confidence} | Misclassified: ${r.misclassifications}`\n);\n\nconst digestText = `Support AI Triage — Daily Digest\\n\\n${lines.join('\\n')}`;\n\nreturn [\n  {\n    json: {\n      digest_text: digestText\n    }\n  }\n];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        672,
-        0
-      ],
-      "id": "5f75f937-5d30-4ef9-9602-a511cd70a71c",
-      "name": "Format Digest"
     },
     {
       "parameters": {
@@ -91,7 +91,7 @@
         0
       ],
       "id": "667e0d7b-a6e4-48e0-b297-160786dfbce5",
-      "name": "Send an Email",
+      "name": "Send Daily Digest Email",
       "webhookId": "773298b7-e0ff-4ea8-b90a-f3417f16a556",
       "credentials": {
         "smtp": {
@@ -103,44 +103,44 @@
   ],
   "pinData": {},
   "connections": {
-    "Schedule Trigger": {
-      "main": [
-        [
-          {
-            "node": "Execute a SQL query",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Execute a SQL query": {
-      "main": [
-        [
-          {
-            "node": "Execute a SQL query1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Execute a SQL query1": {
-      "main": [
-        [
-          {
-            "node": "Format Digest",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Format Digest": {
       "main": [
         [
           {
-            "node": "Send an Email",
+            "node": "Send Daily Digest Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Digest Schedule": {
+      "main": [
+        [
+          {
+            "node": "Refresh Daily Metrics View",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refresh Daily Metrics View": {
+      "main": [
+        [
+          {
+            "node": "Fetch Last 7 Days Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Last 7 Days Metrics": {
+      "main": [
+        [
+          {
+            "node": "Format Digest",
             "type": "main",
             "index": 0
           }
@@ -157,7 +157,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "4fe10237-553e-48e4-ac24-c7a22dec26d4",
+  "versionId": "0b93b58f-87f1-4dab-9330-66e312bf40aa",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "cf741a131aa0ec5b3dc272f7426ba1b4f403496bebcf59c44c0a2188bbddecff"

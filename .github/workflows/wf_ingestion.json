@@ -11,253 +11,11 @@
       "typeVersion": 2.1,
       "position": [
         -576,
-        -16
+        -80
       ],
       "id": "fb777a4c-739e-46c6-8d5f-ffe34424e976",
       "name": "Webhook",
       "webhookId": "d1ccdb92-1f2c-440e-b7a9-59f0a6c6a6c9"
-    },
-    {
-      "parameters": {
-        "jsCode": "return [{\n  json: {\n    source: 'webform',\n    requester_email: $json.body.requester_email,\n    requester_name: $json.body.requester_name,\n    subject: $json.body.subject,\n    body_raw: $json.body.body_raw,\n    received_at: new Date().toISOString()\n  }\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -352,
-        -16
-      ],
-      "id": "f2f6b12d-98c6-43d7-925d-f8fe3cac9287",
-      "name": "Code in JavaScript"
-    },
-    {
-      "parameters": {
-        "jsCode": "const crypto = require('crypto');\n\nconst day = new Date().toISOString().slice(0, 10);\n\nconst raw = `${$json.requester_email}|${$json.subject}|${day}`;\n\nconst hash = crypto\n  .createHash('sha256')\n  .update(raw)\n  .digest('hex');\n\nreturn [{\n  json: {\n    ...$json,\n    dedup_hash: hash\n  }\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -128,
-        -16
-      ],
-      "id": "e8c8560d-cd3e-41b7-bfde-1d063f4da4af",
-      "name": "Code in JavaScript1"
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT id FROM tickets WHERE dedup_hash = '{{ $json.dedup_hash }}' LIMIT 1 ",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.7,
-      "position": [
-        768,
-        -112
-      ],
-      "id": "79c9b8f3-5be8-4fce-b6db-9ead3ed8f641",
-      "name": "Execute a SQL query",
-      "alwaysOutputData": true,
-      "credentials": {
-        "postgres": {
-          "id": "pXMdGhAEBYV4r00o",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "243f5e88-e37c-4e80-9320-75a28fa05bb4",
-              "leftValue": "={{ $json.id !== undefined }}",
-              "rightValue": "={{ $json.id !== undefined }}",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        992,
-        -112
-      ],
-      "id": "24df912b-19de-43a2-8954-02e164d82f97",
-      "name": "If"
-    },
-    {
-      "parameters": {
-        "schema": {
-          "__rl": true,
-          "mode": "list",
-          "value": "public"
-        },
-        "table": {
-          "__rl": true,
-          "value": "tickets",
-          "mode": "list",
-          "cachedResultName": "tickets"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "dedup_hash": "={{ $('Code in JavaScript1').item.json.dedup_hash }}",
-            "received_at": "={{ $('Code in JavaScript1').item.json.received_at }}",
-            "body_raw": "={{ $('Code in JavaScript1').item.json.body_raw }}",
-            "subject": "={{ $('Code in JavaScript1').item.json.subject }}",
-            "requester_name": "={{ $('Code in JavaScript1').item.json.requester_name }}",
-            "requester_email": "={{ $('Code in JavaScript1').item.json.requester_email }}",
-            "source": "={{ $('Code in JavaScript1').item.json.source }}",
-            "body_redacted": "={{ $('Redact PII').item.json.body_redacted }}"
-          },
-          "matchingColumns": [
-            "id"
-          ],
-          "schema": [
-            {
-              "id": "id",
-              "displayName": "id",
-              "required": false,
-              "defaultMatch": true,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "source",
-              "displayName": "source",
-              "required": true,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "external_id",
-              "displayName": "external_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "requester_email",
-              "displayName": "requester_email",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "requester_name",
-              "displayName": "requester_name",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "subject",
-              "displayName": "subject",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "body_raw",
-              "displayName": "body_raw",
-              "required": true,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "body_redacted",
-              "displayName": "body_redacted",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "language",
-              "displayName": "language",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "received_at",
-              "displayName": "received_at",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "dateTime",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "dedup_hash",
-              "displayName": "dedup_hash",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.7,
-      "position": [
-        1216,
-        -112
-      ],
-      "id": "d89c2df0-6e17-400b-b0ea-6371f228dad8",
-      "name": "Insert rows in a table",
-      "credentials": {
-        "postgres": {
-          "id": "pXMdGhAEBYV4r00o",
-          "name": "Postgres account"
-        }
-      }
     },
     {
       "parameters": {
@@ -274,7 +32,7 @@
       "typeVersion": 4.5,
       "position": [
         1440,
-        -112
+        -176
       ],
       "id": "e44ebeb7-0a3c-4eb2-84c1-ab5df8f86038",
       "name": "Classify Ticket",
@@ -297,161 +55,10 @@
       "typeVersion": 2,
       "position": [
         1664,
-        -112
+        -176
       ],
       "id": "522e9125-445f-4735-af49-4323558c1f58",
       "name": "Parse Classification"
-    },
-    {
-      "parameters": {
-        "schema": {
-          "__rl": true,
-          "mode": "list",
-          "value": "public"
-        },
-        "table": {
-          "__rl": true,
-          "value": "classifications",
-          "mode": "list",
-          "cachedResultName": "classifications"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "risk_flag": "={{ $json.risk_flag }}",
-            "confidence": "={{ $json.confidence }}",
-            "ticket_id": "={{ $('Insert rows in a table').item.json.id }}",
-            "model": "openai/gpt-oss-120b",
-            "category": "={{ $json.category }}",
-            "intent": "={{ $json.intent }}",
-            "urgency": "={{ $json.urgency }}",
-            "sentiment": "={{ $json.sentiment }}",
-            "raw_json": "={{ JSON.stringify($json) }}"
-          },
-          "matchingColumns": [
-            "id"
-          ],
-          "schema": [
-            {
-              "id": "id",
-              "displayName": "id",
-              "required": false,
-              "defaultMatch": true,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": true
-            },
-            {
-              "id": "ticket_id",
-              "displayName": "ticket_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "model",
-              "displayName": "model",
-              "required": true,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "category",
-              "displayName": "category",
-              "required": true,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "intent",
-              "displayName": "intent",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "urgency",
-              "displayName": "urgency",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "sentiment",
-              "displayName": "sentiment",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "confidence",
-              "displayName": "confidence",
-              "required": true,
-              "defaultMatch": false,
-              "display": true,
-              "type": "number",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "risk_flag",
-              "displayName": "risk_flag",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "boolean",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "raw_json",
-              "displayName": "raw_json",
-              "required": true,
-              "defaultMatch": false,
-              "display": true,
-              "type": "object",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "created_at",
-              "displayName": "created_at",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "dateTime",
-              "canBeUsedToMatch": true
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.7,
-      "position": [
-        1888,
-        -112
-      ],
-      "id": "f3e73c08-d90b-462d-adb0-5e4dfe9577f0",
-      "name": "Insert rows in a table1",
-      "credentials": {
-        "postgres": {
-          "id": "pXMdGhAEBYV4r00o",
-          "name": "Postgres account"
-        }
-      }
     },
     {
       "parameters": {
@@ -459,14 +66,14 @@
         "url": "http://support_ai_embeddings:8000/embed",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\"text\": {{ JSON.stringify($('Insert rows in a table').item.json.subject + \" \" + $('Insert rows in a table').item.json.body_redacted) }}}",
+        "jsonBody": "={\"text\": {{ JSON.stringify($('Insert Ticket Record').item.json.subject + \" \" + $('Insert Ticket Record').item.json.body_redacted) }}}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
         2112,
-        -112
+        -176
       ],
       "id": "7db0ae9b-8c2b-4d19-ab22-f380aa708c86",
       "name": "Embed Ticket"
@@ -484,137 +91,23 @@
       "typeVersion": 4.5,
       "position": [
         2336,
-        -112
+        -176
       ],
       "id": "d8bbdcf7-5283-4dfa-8136-27906326c95a",
       "name": "Vector Search"
     },
     {
       "parameters": {
-        "jsCode": "const ticketId = $('Insert rows in a table').first().json.id;\n\nconst points = $json.result.points;\n\nreturn points.map((p, i) => ({\n  json: {\n    ticket_id: ticketId,\n    rank: i,\n    source_doc_id: p.payload.source_doc_id,\n    source_type: p.payload.source_type,\n    similarity_score: p.score,\n    chunk_text: p.payload.chunk_text\n  }\n}));"
+        "jsCode": "const ticketId = $('Insert Ticket Record').first().json.id;\n\nconst points = $json.result.points;\n\nreturn points.map((p, i) => ({\n  json: {\n    ticket_id: ticketId,\n    rank: i,\n    source_doc_id: p.payload.source_doc_id,\n    source_type: p.payload.source_type,\n    similarity_score: p.score,\n    chunk_text: p.payload.chunk_text\n  }\n}));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         2560,
-        -208
+        -272
       ],
       "id": "b9cf8184-92e0-4564-b864-cae70ceaed4f",
       "name": "Parse Retrieval Rows"
-    },
-    {
-      "parameters": {
-        "schema": {
-          "__rl": true,
-          "mode": "list",
-          "value": "public"
-        },
-        "table": {
-          "__rl": true,
-          "value": "retrieval_context",
-          "mode": "list",
-          "cachedResultName": "retrieval_context"
-        },
-        "columns": {
-          "mappingMode": "autoMapInputData",
-          "value": {
-            "similarity_score": 0,
-            "rank": 0
-          },
-          "matchingColumns": [
-            "id"
-          ],
-          "schema": [
-            {
-              "id": "id",
-              "displayName": "id",
-              "required": false,
-              "defaultMatch": true,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "ticket_id",
-              "displayName": "ticket_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "source_doc_id",
-              "displayName": "source_doc_id",
-              "required": true,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "source_type",
-              "displayName": "source_type",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "similarity_score",
-              "displayName": "similarity_score",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "number",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "chunk_text",
-              "displayName": "chunk_text",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "rank",
-              "displayName": "rank",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "number",
-              "canBeUsedToMatch": true,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.7,
-      "position": [
-        2784,
-        -208
-      ],
-      "id": "22259839-2b67-4619-914d-655d3de16b1c",
-      "name": "Insert rows in a table2",
-      "credentials": {
-        "postgres": {
-          "id": "pXMdGhAEBYV4r00o",
-          "name": "Postgres account"
-        }
-      }
     },
     {
       "parameters": {
@@ -624,7 +117,7 @@
       "typeVersion": 2,
       "position": [
         2560,
-        -16
+        -80
       ],
       "id": "6a51a662-3573-4072-9164-e24a292c6e29",
       "name": "Build Context String"
@@ -637,14 +130,14 @@
         "nodeCredentialType": "groqApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": {{ JSON.stringify(\"You are drafting a reply to a customer support ticket. Use ONLY the provided context to answer factual or policy questions. If the context does not contain the answer, say so honestly in the draft and set grounded to false. Never invent policy details.\") }}\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify(\n        \"Ticket: \" +\n        $('Insert rows in a table').first().json.body_redacted +\n        \"\\nCategory: \" +\n        $('Parse Classification').first().json.category +\n        \"\\n\\nContext (top-k retrieved):\\n\" +\n        $json.context_text\n      ) }}\n    }\n  ],\n  \"response_format\": {\n    \"type\": \"json_schema\",\n    \"json_schema\": {\n      \"name\": \"ticket_draft\",\n      \"strict\": true,\n      \"schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"reply_text\": {\n            \"type\": \"string\"\n          },\n          \"grounded\": {\n            \"type\": \"boolean\"\n          },\n          \"citations\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"confidence\": {\n            \"type\": \"number\"\n          }\n        },\n        \"required\": [\n          \"reply_text\",\n          \"grounded\",\n          \"citations\",\n          \"confidence\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  }\n}",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": {{ JSON.stringify(\"You are drafting a reply to a customer support ticket. Use ONLY the provided context to answer factual or policy questions. If the context does not contain the answer, say so honestly in the draft and set grounded to false. Never invent policy details.\") }}\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify(\n        \"Ticket: \" +\n        $('Insert Ticket Record').first().json.body_redacted +\n        \"\\nCategory: \" +\n        $('Parse Classification').first().json.category +\n        \"\\n\\nContext (top-k retrieved):\\n\" +\n        $json.context_text\n      ) }}\n    }\n  ],\n  \"response_format\": {\n    \"type\": \"json_schema\",\n    \"json_schema\": {\n      \"name\": \"ticket_draft\",\n      \"strict\": true,\n      \"schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"reply_text\": {\n            \"type\": \"string\"\n          },\n          \"grounded\": {\n            \"type\": \"boolean\"\n          },\n          \"citations\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"confidence\": {\n            \"type\": \"number\"\n          }\n        },\n        \"required\": [\n          \"reply_text\",\n          \"grounded\",\n          \"citations\",\n          \"confidence\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
         2784,
-        -16
+        -80
       ],
       "id": "a204ee78-e7cb-431d-bb9c-3aebeba2cd0b",
       "name": "Draft Reply",
@@ -663,306 +156,23 @@
       "typeVersion": 2,
       "position": [
         3008,
-        -16
+        -80
       ],
       "id": "a75e54ed-0345-403e-88db-a72e1667be7d",
       "name": "Parse Draft"
     },
     {
       "parameters": {
-        "jsCode": "const classification = $('Parse Classification').first().json;\nconst draft = $json;\nconst ticket = $('Insert rows in a table').first().json;\n\n// TODO (future): pull these from the config_thresholds table instead of hardcoding,\n// so they can be tuned without redeploying (see roadmap Section 5.3).\nconst T_AUTO = 0.85;\nconst T_DRAFT_REVIEW = 0.55;\nconst T_DRAFT_CONFIDENCE = 0.80;\n\nlet action;\n\n// Risk/escalation checks come FIRST and always win.\n// This is the hard code-level safety guard from Section 9,\n// not just a prompt instruction.\nif (\n  classification.risk_flag ||\n  classification.sentiment === 'angry' ||\n  classification.confidence < T_DRAFT_REVIEW\n) {\n  action = 'escalate';\n} else if (\n  classification.confidence >= T_AUTO &&\n  draft.grounded &&\n  draft.confidence >= T_DRAFT_CONFIDENCE\n) {\n  action = 'auto_resolve';\n} else {\n  action = 'draft_for_review';\n}\n\nreturn [\n  {\n    json: {\n      ticket_id: ticket.id,\n      action,\n      threshold_used: T_AUTO,\n      drafted_reply: draft.reply_text,\n      routed_to: action === 'escalate' ? 'support-team' : null,\n      requester_email: ticket.requester_email,\n      subject: ticket.subject,\n      category: classification.category,\n      urgency: classification.urgency,\n      reasoning: classification.reasoning\n    }\n  }\n];"
+        "jsCode": "const classification = $('Parse Classification').first().json;\nconst draft = $json;\nconst ticket = $('Insert Ticket Record').first().json;\n\n// TODO (future): pull these from the config_thresholds table instead of hardcoding,\n// so they can be tuned without redeploying (see roadmap Section 5.3).\nconst T_AUTO = 0.85;\nconst T_DRAFT_REVIEW = 0.55;\nconst T_DRAFT_CONFIDENCE = 0.80;\n\nlet action;\n\n// Risk/escalation checks come FIRST and always win.\n// This is the hard code-level safety guard from Section 9,\n// not just a prompt instruction.\nif (\n  classification.risk_flag ||\n  classification.sentiment === 'angry' ||\n  classification.confidence < T_DRAFT_REVIEW\n) {\n  action = 'escalate';\n} else if (\n  classification.confidence >= T_AUTO &&\n  draft.grounded &&\n  draft.confidence >= T_DRAFT_CONFIDENCE\n) {\n  action = 'auto_resolve';\n} else {\n  action = 'draft_for_review';\n}\n\nreturn [\n  {\n    json: {\n      ticket_id: ticket.id,\n      action,\n      threshold_used: T_AUTO,\n      drafted_reply: draft.reply_text,\n      routed_to: action === 'escalate' ? 'support-team' : null,\n      requester_email: ticket.requester_email,\n      subject: ticket.subject,\n      category: classification.category,\n      urgency: classification.urgency,\n      reasoning: classification.reasoning\n    }\n  }\n];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         3232,
-        -16
+        -80
       ],
       "id": "58a30227-a17a-4620-9ee9-d601259ed96d",
       "name": "Decision Engine"
-    },
-    {
-      "parameters": {
-        "schema": {
-          "__rl": true,
-          "mode": "list",
-          "value": "public"
-        },
-        "table": {
-          "__rl": true,
-          "value": "decisions",
-          "mode": "list",
-          "cachedResultName": "decisions"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "threshold_used": "={{ $json.threshold_used }}",
-            "ticket_id": "={{ $json.ticket_id }}",
-            "action": "={{ $json.action }}",
-            "drafted_reply": "={{ $json.drafted_reply }}",
-            "routed_to": "={{ $json.routed_to }}"
-          },
-          "matchingColumns": [
-            "id"
-          ],
-          "schema": [
-            {
-              "id": "id",
-              "displayName": "id",
-              "required": false,
-              "defaultMatch": true,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": true
-            },
-            {
-              "id": "ticket_id",
-              "displayName": "ticket_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "action",
-              "displayName": "action",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "threshold_used",
-              "displayName": "threshold_used",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "number",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "drafted_reply",
-              "displayName": "drafted_reply",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "routed_to",
-              "displayName": "routed_to",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "decided_at",
-              "displayName": "decided_at",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "dateTime",
-              "canBeUsedToMatch": true,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.7,
-      "position": [
-        3456,
-        -16
-      ],
-      "id": "bdfc3f1e-ff70-45b0-8be3-bd8d70bcbedb",
-      "name": "Insert rows in a table3",
-      "credentials": {
-        "postgres": {
-          "id": "pXMdGhAEBYV4r00o",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "rules": {
-          "values": [
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.action }}",
-                    "rightValue": "auto_resolve",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    },
-                    "id": "23b91361-ff38-4731-8e2e-eb045a551c06"
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "auto_resolve"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "b4dcc3ae-a05d-499c-9add-a4e69a1acfb8",
-                    "leftValue": "={{ $json.action }}",
-                    "rightValue": "draft_for_review",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals",
-                      "name": "filter.operator.equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "draft_for_review"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "87d29fdc-b4ce-44c7-95ab-9770a5081fe4",
-                    "leftValue": "={{ $json.action }}",
-                    "rightValue": "escalate",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals",
-                      "name": "filter.operator.equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "escalate"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.4,
-      "position": [
-        3680,
-        -32
-      ],
-      "id": "33b76306-8e99-4a46-9424-1421cfc86efe",
-      "name": "Switch"
-    },
-    {
-      "parameters": {
-        "fromEmail": "rushitpsoni2002@gmail.com",
-        "toEmail": "{{ $json.requester_email }}",
-        "subject": "={{ \"Re: \" + $('Decision Engine').item.json.subject }}",
-        "emailFormat": "text",
-        "text": "={{ $json.drafted_reply }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [
-        3904,
-        -208
-      ],
-      "id": "a73d544c-27ce-4fbd-bf7b-5c0ac34e9ce3",
-      "name": "Send an Email",
-      "webhookId": "eabf34a4-68fd-45b5-a045-f65992dcfa52",
-      "credentials": {
-        "smtp": {
-          "id": "9DjGp89G3lOYbIjp",
-          "name": "Gmail SMTP"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "fromEmail": "rushitpsoni2002@gmail.com",
-        "toEmail": "=rushitpsoni2002@gmail.com",
-        "subject": "={{ \"[Review Needed] \" + $('Decision Engine').item.json.subject }}",
-        "emailFormat": "text",
-        "text": "={{ \"Category: \" + $('Decision Engine').item.json.category + \"\\nUrgency: \" + $('Decision Engine').item.json.urgency + \"\\n\\nDrafted reply:\\n\" + $json.drafted_reply + \"\\n\\n(Reply to this email to send your edited version manually for now.)\" }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [
-        3904,
-        -16
-      ],
-      "id": "35be5fa7-43bf-4ad9-a36a-227f5e907757",
-      "name": "Send an Email1",
-      "webhookId": "d9cb2cea-9939-4ea6-b3d0-98087e869543",
-      "credentials": {
-        "smtp": {
-          "id": "9DjGp89G3lOYbIjp",
-          "name": "Gmail SMTP"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "fromEmail": "rushitpsoni2002@gmail.com",
-        "toEmail": "=rushitpsoni2002@gmail.com",
-        "subject": "={{ \"[ESCALATED] \" + $('Decision Engine').item.json.category }}",
-        "emailFormat": "text",
-        "text": "={{ \"This ticket needs human attention.\\n\\nCategory: \" + $('Decision Engine').item.json.category + \"\\nUrgency: \" + $('Decision Engine').item.json.urgency + \"\\nReasoning: \" + $('Decision Engine').item.json.reasoning + \"\\n\\nNo automated reply was sent.\" }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [
-        3904,
-        176
-      ],
-      "id": "f740b423-406d-4ca5-acf8-f28c5ee54dca",
-      "name": "Send an Email2",
-      "webhookId": "1f645dcd-39ae-4dc8-952b-ac780adab8d3",
-      "credentials": {
-        "smtp": {
-          "id": "9DjGp89G3lOYbIjp",
-          "name": "Gmail SMTP"
-        }
-      }
     },
     {
       "parameters": {
@@ -971,8 +181,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        96,
-        -16
+        544,
+        -80
       ],
       "id": "6781afda-1ae1-4b02-8709-d87863d218af",
       "name": "Redact PII"
@@ -986,8 +196,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.7,
       "position": [
-        320,
-        -16
+        768,
+        -80
       ],
       "id": "dfb8462d-7b9b-4c4f-bd5c-87b673c29f1d",
       "name": "Check Hourly Volume",
@@ -1027,11 +237,37 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        544,
-        -16
+        992,
+        -80
       ],
       "id": "27ca9b20-5e8e-49ac-8a15-3525f65ca309",
       "name": "Budget Check"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    source: 'webform',\n    requester_email: $json.body.requester_email,\n    requester_name: $json.body.requester_name,\n    subject: $json.body.subject,\n    body_raw: $json.body.body_raw,\n    received_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        -80
+      ],
+      "id": "f2f6b12d-98c6-43d7-925d-f8fe3cac9287",
+      "name": "Normalize Ticket Payload"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\nconst day = new Date().toISOString().slice(0, 10);\n\nconst raw = `${$json.requester_email}|${$json.subject}|${day}`;\n\nconst hash = crypto\n  .createHash('sha256')\n  .update(raw)\n  .digest('hex');\n\nreturn [{\n  json: {\n    ...$json,\n    dedup_hash: hash\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -80
+      ],
+      "id": "e8c8560d-cd3e-41b7-bfde-1d063f4da4af",
+      "name": "Generate Dedup Hash"
     },
     {
       "parameters": {
@@ -1171,11 +407,11 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.7,
       "position": [
-        768,
-        80
+        1216,
+        16
       ],
       "id": "a3ae7f8d-973d-496f-a5db-2418652ad1de",
-      "name": "Insert rows in a table4",
+      "name": "Insert Ticket (Budget-Exceeded Path)",
       "credentials": {
         "postgres": {
           "id": "pXMdGhAEBYV4r00o",
@@ -1281,11 +517,11 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.7,
       "position": [
-        992,
-        80
+        1440,
+        16
       ],
       "id": "6d577142-d307-4d4b-aa81-9ca4811ccf1a",
-      "name": "Insert rows in a table5",
+      "name": "Insert Escalate Decision (Budget)",
       "credentials": {
         "postgres": {
           "id": "pXMdGhAEBYV4r00o",
@@ -1305,12 +541,776 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        1216,
-        80
+        1664,
+        16
       ],
       "id": "7cbff468-4a7b-4693-b645-36cb884babe3",
-      "name": "Send an Email3",
+      "name": "Notify Team – Budget Exceeded",
       "webhookId": "bb147e29-511f-4e34-81e0-eeccd57d469e",
+      "credentials": {
+        "smtp": {
+          "id": "9DjGp89G3lOYbIjp",
+          "name": "Gmail SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id FROM tickets WHERE dedup_hash = '{{ $json.dedup_hash }}' LIMIT 1 ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        96,
+        -80
+      ],
+      "id": "79c9b8f3-5be8-4fce-b6db-9ead3ed8f641",
+      "name": "Check for Duplicate Ticket",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "pXMdGhAEBYV4r00o",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "243f5e88-e37c-4e80-9320-75a28fa05bb4",
+              "leftValue": "={{ $json.id !== undefined }}",
+              "rightValue": "={{ $json.id !== undefined }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        320,
+        -80
+      ],
+      "id": "24df912b-19de-43a2-8954-02e164d82f97",
+      "name": "Is Duplicate?"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tickets",
+          "mode": "list",
+          "cachedResultName": "tickets"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "dedup_hash": "={{ $('Generate Dedup Hash').item.json.dedup_hash }}",
+            "received_at": "={{ $('Generate Dedup Hash').item.json.received_at }}",
+            "body_raw": "={{ $('Generate Dedup Hash').item.json.body_raw }}",
+            "subject": "={{ $('Generate Dedup Hash').item.json.subject }}",
+            "requester_name": "={{ $('Generate Dedup Hash').item.json.requester_name }}",
+            "requester_email": "={{ $('Generate Dedup Hash').item.json.requester_email }}",
+            "source": "={{ $('Generate Dedup Hash').item.json.source }}",
+            "body_redacted": "={{ $('Redact PII').item.json.body_redacted }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "external_id",
+              "displayName": "external_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "requester_email",
+              "displayName": "requester_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "requester_name",
+              "displayName": "requester_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "body_raw",
+              "displayName": "body_raw",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "body_redacted",
+              "displayName": "body_redacted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "received_at",
+              "displayName": "received_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dedup_hash",
+              "displayName": "dedup_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        1216,
+        -176
+      ],
+      "id": "d89c2df0-6e17-400b-b0ea-6371f228dad8",
+      "name": "Insert Ticket Record",
+      "credentials": {
+        "postgres": {
+          "id": "pXMdGhAEBYV4r00o",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "classifications",
+          "mode": "list",
+          "cachedResultName": "classifications"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "risk_flag": "={{ $json.risk_flag }}",
+            "confidence": "={{ $json.confidence }}",
+            "ticket_id": "={{ $('Insert Ticket Record').item.json.id }}",
+            "model": "openai/gpt-oss-120b",
+            "category": "={{ $json.category }}",
+            "intent": "={{ $json.intent }}",
+            "urgency": "={{ $json.urgency }}",
+            "sentiment": "={{ $json.sentiment }}",
+            "raw_json": "={{ JSON.stringify($json) }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "urgency",
+              "displayName": "urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sentiment",
+              "displayName": "sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "risk_flag",
+              "displayName": "risk_flag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "raw_json",
+              "displayName": "raw_json",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        1888,
+        -176
+      ],
+      "id": "f3e73c08-d90b-462d-adb0-5e4dfe9577f0",
+      "name": "Insert Classification Record",
+      "credentials": {
+        "postgres": {
+          "id": "pXMdGhAEBYV4r00o",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "retrieval_context",
+          "mode": "list",
+          "cachedResultName": "retrieval_context"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "similarity_score": 0,
+            "rank": 0
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source_doc_id",
+              "displayName": "source_doc_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source_type",
+              "displayName": "source_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "similarity_score",
+              "displayName": "similarity_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "chunk_text",
+              "displayName": "chunk_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "rank",
+              "displayName": "rank",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        2784,
+        -272
+      ],
+      "id": "22259839-2b67-4619-914d-655d3de16b1c",
+      "name": "Insert Retrieval Context",
+      "credentials": {
+        "postgres": {
+          "id": "pXMdGhAEBYV4r00o",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "decisions",
+          "mode": "list",
+          "cachedResultName": "decisions"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "threshold_used": "={{ $json.threshold_used }}",
+            "ticket_id": "={{ $json.ticket_id }}",
+            "action": "={{ $json.action }}",
+            "drafted_reply": "={{ $json.drafted_reply }}",
+            "routed_to": "={{ $json.routed_to }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "action",
+              "displayName": "action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "threshold_used",
+              "displayName": "threshold_used",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "drafted_reply",
+              "displayName": "drafted_reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "routed_to",
+              "displayName": "routed_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "decided_at",
+              "displayName": "decided_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        3456,
+        -80
+      ],
+      "id": "bdfc3f1e-ff70-45b0-8be3-bd8d70bcbedb",
+      "name": "Insert Decision Record",
+      "credentials": {
+        "postgres": {
+          "id": "pXMdGhAEBYV4r00o",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "auto_resolve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "23b91361-ff38-4731-8e2e-eb045a551c06"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "auto_resolve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b4dcc3ae-a05d-499c-9add-a4e69a1acfb8",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "draft_for_review",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "draft_for_review"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "87d29fdc-b4ce-44c7-95ab-9770a5081fe4",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "escalate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "escalate"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3680,
+        -96
+      ],
+      "id": "33b76306-8e99-4a46-9424-1421cfc86efe",
+      "name": "Route by Action"
+    },
+    {
+      "parameters": {
+        "fromEmail": "rushitpsoni2002@gmail.com",
+        "toEmail": "{{ $json.requester_email }}",
+        "subject": "={{ \"Re: \" + $('Decision Engine').item.json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.drafted_reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        3904,
+        -272
+      ],
+      "id": "a73d544c-27ce-4fbd-bf7b-5c0ac34e9ce3",
+      "name": "Send Auto-Resolve Reply",
+      "webhookId": "eabf34a4-68fd-45b5-a045-f65992dcfa52",
+      "credentials": {
+        "smtp": {
+          "id": "9DjGp89G3lOYbIjp",
+          "name": "Gmail SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "rushitpsoni2002@gmail.com",
+        "toEmail": "=rushitpsoni2002@gmail.com",
+        "subject": "={{ \"[Review Needed] \" + $('Decision Engine').item.json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ \"Category: \" + $('Decision Engine').item.json.category + \"\\nUrgency: \" + $('Decision Engine').item.json.urgency + \"\\n\\nDrafted reply:\\n\" + $json.drafted_reply + \"\\n\\n(Reply to this email to send your edited version manually for now.)\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        3904,
+        -80
+      ],
+      "id": "35be5fa7-43bf-4ad9-a36a-227f5e907757",
+      "name": "Notify Reviewer – Draft for Review",
+      "webhookId": "d9cb2cea-9939-4ea6-b3d0-98087e869543",
+      "credentials": {
+        "smtp": {
+          "id": "9DjGp89G3lOYbIjp",
+          "name": "Gmail SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "rushitpsoni2002@gmail.com",
+        "toEmail": "=rushitpsoni2002@gmail.com",
+        "subject": "={{ \"[ESCALATED] \" + $('Decision Engine').item.json.category }}",
+        "emailFormat": "text",
+        "text": "={{ \"This ticket needs human attention.\\n\\nCategory: \" + $('Decision Engine').item.json.category + \"\\nUrgency: \" + $('Decision Engine').item.json.urgency + \"\\nReasoning: \" + $('Decision Engine').item.json.reasoning + \"\\n\\nNo automated reply was sent.\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        3904,
+        112
+      ],
+      "id": "f740b423-406d-4ca5-acf8-f28c5ee54dca",
+      "name": "Notify Team – Escalate",
+      "webhookId": "1f645dcd-39ae-4dc8-952b-ac780adab8d3",
       "credentials": {
         "smtp": {
           "id": "9DjGp89G3lOYbIjp",
@@ -1325,63 +1325,7 @@
       "main": [
         [
           {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript1": {
-      "main": [
-        [
-          {
-            "node": "Redact PII",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Execute a SQL query": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [],
-        [
-          {
-            "node": "Insert rows in a table",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Insert rows in a table": {
-      "main": [
-        [
-          {
-            "node": "Classify Ticket",
+            "node": "Normalize Ticket Payload",
             "type": "main",
             "index": 0
           }
@@ -1403,18 +1347,7 @@
       "main": [
         [
           {
-            "node": "Insert rows in a table1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Insert rows in a table1": {
-      "main": [
-        [
-          {
-            "node": "Embed Ticket",
+            "node": "Insert Classification Record",
             "type": "main",
             "index": 0
           }
@@ -1452,7 +1385,7 @@
       "main": [
         [
           {
-            "node": "Insert rows in a table2",
+            "node": "Insert Retrieval Context",
             "type": "main",
             "index": 0
           }
@@ -1496,43 +1429,7 @@
       "main": [
         [
           {
-            "node": "Insert rows in a table3",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Insert rows in a table3": {
-      "main": [
-        [
-          {
-            "node": "Switch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Switch": {
-      "main": [
-        [
-          {
-            "node": "Send an Email",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Send an Email1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Send an Email2",
+            "node": "Insert Decision Record",
             "type": "main",
             "index": 0
           }
@@ -1565,36 +1462,139 @@
       "main": [
         [
           {
-            "node": "Insert rows in a table4",
+            "node": "Insert Ticket (Budget-Exceeded Path)",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Execute a SQL query",
+            "node": "Insert Ticket Record",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Insert rows in a table4": {
+    "Normalize Ticket Payload": {
       "main": [
         [
           {
-            "node": "Insert rows in a table5",
+            "node": "Generate Dedup Hash",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Insert rows in a table5": {
+    "Generate Dedup Hash": {
       "main": [
         [
           {
-            "node": "Send an Email3",
+            "node": "Check for Duplicate Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Ticket (Budget-Exceeded Path)": {
+      "main": [
+        [
+          {
+            "node": "Insert Escalate Decision (Budget)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Escalate Decision (Budget)": {
+      "main": [
+        [
+          {
+            "node": "Notify Team – Budget Exceeded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Duplicate Ticket": {
+      "main": [
+        [
+          {
+            "node": "Is Duplicate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Duplicate?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Redact PII",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Ticket Record": {
+      "main": [
+        [
+          {
+            "node": "Classify Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Classification Record": {
+      "main": [
+        [
+          {
+            "node": "Embed Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Decision Record": {
+      "main": [
+        [
+          {
+            "node": "Route by Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Action": {
+      "main": [
+        [
+          {
+            "node": "Send Auto-Resolve Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Reviewer – Draft for Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Team – Escalate",
             "type": "main",
             "index": 0
           }
@@ -1611,7 +1611,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "4b554b30-3743-442c-bc11-f1886f4f55de",
+  "versionId": "4fbf4f50-9990-4b44-8095-f285a5935d41",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "cf741a131aa0ec5b3dc272f7426ba1b4f403496bebcf59c44c0a2188bbddecff"

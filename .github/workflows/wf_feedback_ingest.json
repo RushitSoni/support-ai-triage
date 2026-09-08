@@ -139,7 +139,7 @@
         0
       ],
       "id": "bfb8356f-1af0-430b-9701-e70e495d44aa",
-      "name": "Insert rows in a table",
+      "name": "Insert Feedback Record",
       "credentials": {
         "postgres": {
           "id": "pXMdGhAEBYV4r00o",
@@ -154,7 +154,7 @@
       "main": [
         [
           {
-            "node": "Insert rows in a table",
+            "node": "Insert Feedback Record",
             "type": "main",
             "index": 0
           }
@@ -171,7 +171,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "b0048779-acc9-4c9c-bfba-d00ddd02fe34",
+  "versionId": "3dc30859-6603-413f-aa71-5cdfbd180d99",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "cf741a131aa0ec5b3dc272f7426ba1b4f403496bebcf59c44c0a2188bbddecff"

@@ -41,7 +41,7 @@
         0
       ],
       "id": "00eead98-281f-477f-9a73-370314f954bf",
-      "name": "Send an Email",
+      "name": "Send Error Alert Email",
       "webhookId": "12d1a84f-9026-4617-bd1f-4adeb30255e3",
       "credentials": {
         "smtp": {
@@ -68,7 +68,7 @@
       "main": [
         [
           {
-            "node": "Send an Email",
+            "node": "Send Error Alert Email",
             "type": "main",
             "index": 0
           }
@@ -81,7 +81,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "5b097256-648b-48fb-bcd7-ba3c9b5ae110",
+  "versionId": "83b8aabc-26d9-4feb-a818-88bca57705e8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "cf741a131aa0ec5b3dc272f7426ba1b4f403496bebcf59c44c0a2188bbddecff"

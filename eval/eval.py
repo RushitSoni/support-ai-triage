@@ -151,6 +151,9 @@ def run_eval(eval_set_path: str) -> None:
 
         time.sleep(0.5)  # be polite to the API / avoid rate limits
 
+    
+
+
     print("\n=== EVAL RESULTS ===")
     print(f"Total tickets:      {total}")
     print(f"Category accuracy:  {category_correct}/{total} ({100*category_correct/total:.1f}%)")
@@ -165,6 +168,35 @@ def run_eval(eval_set_path: str) -> None:
     with open("eval_results.json", "w") as f:
         json.dump(results, f, indent=2)
     print("\nFull per-ticket results saved to eval_results.json")
+
+    # --- Pass/fail gate -------------------------------------------------
+    # These are the thresholds CI enforces. Tune them here, not in the
+    # workflow YAML, so the gate logic stays with the eval itself.
+    MIN_CATEGORY_ACC = 0.70
+    MIN_RISK_ACC = 0.90
+    MAX_FALSE_NEGATIVES = 0          # any risky ticket slipping through fails the build
+
+    category_acc = category_correct / total
+    risk_acc = risk_correct / total
+
+    failures = []
+    if len(false_negative_risks) > MAX_FALSE_NEGATIVES:
+        failures.append(
+            f"{len(false_negative_risks)} risky ticket(s) NOT flagged "
+            f"(max allowed: {MAX_FALSE_NEGATIVES})"
+        )
+    if category_acc < MIN_CATEGORY_ACC:
+        failures.append(f"category accuracy {category_acc:.1%} < required {MIN_CATEGORY_ACC:.0%}")
+    if risk_acc < MIN_RISK_ACC:
+        failures.append(f"risk_flag accuracy {risk_acc:.1%} < required {MIN_RISK_ACC:.0%}")
+
+    if failures:
+        print("\n=== EVAL FAILED ===")
+        for f_ in failures:
+            print(f"  - {f_}")
+        sys.exit(1)
+
+    print("\n=== EVAL PASSED ===")
 
 
 if __name__ == "__main__":
